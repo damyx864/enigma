@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>Paper Enigma Implementation</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+
+    <!-- Bootstrap CSS -->
+    <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+          integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" rel="stylesheet">
+
+</head>
+<body>
+
+<div class="contact-section">
+    <div class="container">
+        <h1>Paper Enigma Implementation</h1>
+        <form action="" method="post" th:action="@{/enigma/encrypt}" th:object="${msg}">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label th:for="key">Key: </label>
+                    <input th:field="*{key}" type="text" th:size="3"/>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label th:for="message">Message: </label>
+                    <textarea cols="80" th:field="*{message}" rows="10" placeholder="Enter Your Secret Message"/>
+                </div>
+                <div>
+                    <input class="btn btn-default" type="submit" value="Submit"/>
+                    <input class="btn btn-default" type="reset" value="Reset"/>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
