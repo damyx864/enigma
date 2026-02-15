@@ -1,13 +1,13 @@
-package com.ingtech.encoder;
+package com.ingtech.encoder.rotor;
 
 import java.util.Arrays;
 
-public class Rotor implements Prepare {
+public class Rotor implements Prepare, CharEncode {
 
     private final int ALPHABET_SIZE = 26;
 
     private int indexOffset = 0;
-    private String[][] data;
+    private final String[][] data;
 
     public Rotor(String[] index, String[] reference) {
         data = new String[2][reference.length];

@@ -1,6 +1,6 @@
 FROM alpine:edge
 
-RUN apk add --no-cache openjdk11
+RUN apk add --no-cache openjdk25
 
 RUN mkdir /opt/enigma
 

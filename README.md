@@ -5,16 +5,16 @@ The REST encode will consume and produce JSON while the index and editor page wi
 The implementation follows the exact specification of Michael C. Koss (mike@mckoss.com) from his document https://www.apprendre-en-ligne.net/crypto/bibliotheque/PDF/paperEnigma.pdf.<br><br>
 
 I implemented two Spring MVC Controllers one that can act as an api, and the other which can talk directly to the browser.<br>
-The data used to initialise the rotors with the cypher is being fed from a properties file `enigma.properties` using Spring's plumming to scan the components and inject them the data .<br>
-You should look there to change the "machine's" specs, I used the data that was provided in the document.<br><br>
+The data used to initialize the rotors with the cipher is being fed from a properties file `enigma.properties` using Spring's plumming to scan the components and inject them the data .<br>
+You should look there to change the "machine's" specs, I used the data provided in the document.<br><br>
 
 I implemented each rotor from a common class, which created some friction with the first rotor (or the rightmost one) because it has to change the initial setting and thus it actually maintains its key.<br>
-The reflector was implemented separatelly because it's also a special case of rotor.<br><br>
+The reflector was implemented separately because it's also a special case of rotor.<br><br>
 
 The most convenient way to implement the rotors was to use arrays as the other data structures in Java are too problematic to either shift data or to have and index.<br>
-Since the encoding process starts the piece of data that gets passed around and trasformed in the process is just the absolute value of the current index of either the alphabetic index of the rotors or the reflector or the input list or the index of the cypher part.<br><br>
+Since the encoding process starts the piece of data that gets passed around and transformed in the process is just the absolute value from the current index from either the alphabetic index of the rotors or the reflector or the input list or the index of the cipher part.<br><br>
 
-In order to be able to perform Enigma like encoding with this scheme all the three rotors and the reflector must be initialised with the cyphers, then prepared with the key.<br>
+To perform Enigma like encoding with this scheme all the three rotors and the reflector must be initialized with the ciphers, then prepared with the key.<br>
 For example the key `cat` will set `t` to the rightmost rotor, `a` to the middle rotor and `c` to the leftmost rotor.<br><br>
 
 The key must be comprised of three letters, otherwise the encryption will not be performed.<br>
@@ -30,8 +30,8 @@ These instructions will get you a copy of the project up and running on your loc
 What things you need to have installed the software
 
 ```
-* Java 11 (Oracle or OpenJDK)
-* Maven 3.6
+* Java 21/25 (Oracle or OpenJDK)
+* Maven 3.9
 * Docker (optional)
 ```
 
@@ -57,7 +57,7 @@ Shell with Java
 ./run.sh
 ```
 
-In case the script do not sufficient right to run, try this before running it again:
+In case the script does not have enough rights to run, try this before running it again:
 
 ```
 $ chmod +x start.sh
@@ -90,8 +90,17 @@ mvn test
 
 * [Intellij Idea](http://www.jetbrains.com/) - The IDE used
 * [Maven 3](https://maven.apache.org/) - Dependency Management
+<strike>
 * [Spring 5](https://spring.io/) - Java Framework
+</strike>
+* [Spring 6](https://spring.io/) - Java Framework
+<strike>
 * [Kubuntu 20.04](http://kubuntu.com) - The distro I use
+</strike>
+* [OpenSUSE Tumbleweed](http://kubuntu.com) - The distro I use
+<strike>
 * [OpenJDK 14](https://openjdk.java.net/) - The Java version I use
+</strike>
+* [OpenJDK 25](https://openjdk.java.net/) - The Java version I use
 * Patience ;)
 
