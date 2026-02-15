@@ -10,6 +10,7 @@ public class Reflector implements CharEncode {
         this.reference = reference;
     }
 
+    @Override
     public int encode(int charIndex) {
 
         var soughtChar = reference.get(charIndex);

@@ -1,39 +1,42 @@
 package com.ingtech.encoder.rotor;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.OptionalInt;
+import java.util.stream.IntStream;
 
 public class Rotor implements Prepare, CharEncode {
 
     private final int ALPHABET_SIZE = 26;
 
     private int indexOffset = 0;
-    private final List<String> indexList;
-    private final List<String> referenceList;
+    private final List<String> index;
+    private final List<String> reference;
 
     public Rotor(List<String> index, List<String> reference) {
-        indexList = new ArrayList<>(index);
-        referenceList = new ArrayList<>(reference);
+        this.index = index;
+        this.reference = reference;
     }
 
     @Override
     public void setup(String key) {
-        for (int i = 0; i < indexList.size(); i++) {
-            if (key.equals(indexList.get(i))) {
-                indexOffset = i;
-                break;
-            }
+        OptionalInt offset = IntStream.range(0, index.size())
+                .filter(i -> key.equals(index.get(i)))
+                .findFirst();
+
+        if (offset.isPresent()) {
+            indexOffset = offset.getAsInt();
         }
     }
 
     public int leftEncode(int charIndex) {
         int encodedCharIndex = charIndex;
-        for (int i = indexOffset; i < indexOffset + ALPHABET_SIZE; i++) {
-            if (referenceList.get(charIndex + indexOffset).equals(indexList.get(i))) {
-                encodedCharIndex = i - indexOffset;
-                break;
-            }
+
+        OptionalInt result = IntStream.range(indexOffset, indexOffset + ALPHABET_SIZE)
+                .filter(i -> reference.get(charIndex + indexOffset).equals(index.get(i)))
+                .findFirst();
+
+        if (result.isPresent()) {
+            encodedCharIndex = result.getAsInt() - indexOffset;
         }
 
         return encodedCharIndex;
@@ -41,11 +44,13 @@ public class Rotor implements Prepare, CharEncode {
 
     public int rightEncode(int charIndex) {
         int encodedCharIndex = charIndex;
-        for (int i = indexOffset; i < indexOffset + ALPHABET_SIZE; i++) {
-            if (indexList.get(charIndex + indexOffset).equals(referenceList.get(i))) {
-                encodedCharIndex = i - indexOffset;
-                break;
-            }
+
+        OptionalInt result = IntStream.range(indexOffset, indexOffset + ALPHABET_SIZE)
+                .filter(i -> index.get(charIndex + indexOffset).equals(reference.get(i)))
+                .findFirst();
+
+        if (result.isPresent()) {
+            encodedCharIndex = result.getAsInt() - indexOffset;
         }
 
         return encodedCharIndex;
