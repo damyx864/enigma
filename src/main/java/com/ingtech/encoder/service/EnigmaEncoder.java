@@ -5,13 +5,23 @@ import com.ingtech.encoder.rotor.Reflector;
 import com.ingtech.encoder.rotor.Rotor1;
 import com.ingtech.encoder.rotor.Rotor2;
 import com.ingtech.encoder.rotor.Rotor3;
+import jakarta.annotation.Nonnull;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.IntUnaryOperator;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class EnigmaEncoder implements EncodeMessage {
 
-    private static final String NOT_LETTER = "[^a-zA-Z]";
-    private static final String BIG_LETTER = "[A-Z]";
+    private static final Pattern LETTER = Pattern.compile("[a-zA-Z]");
+    private static final Pattern BIG_LETTER = Pattern.compile("[A-Z]");
+    private static final Predicate<String> isLetter = LETTER.asPredicate();
+    private static final Predicate<String> isBigLetter = BIG_LETTER.asPredicate();
 
     private final EnigmaConfiguration enigmaConfiguration;
 
@@ -31,55 +41,59 @@ public class EnigmaEncoder implements EncodeMessage {
     }
 
     @Override
-    public String encodeMessage(Message msg) {
+    public String encodeMessage(Message message) {
 
-        StringBuilder encryptedMessage;
+        Predicate<Message> hasValidKey = m ->
+                m.key() != null
+                        && m.key().length() == enigmaConfiguration.rotorCount()
+                        && m.key().toUpperCase().matches(enigmaConfiguration.keyPattern());
 
-        if (msg.key() == null || msg.key().length() != enigmaConfiguration.rotorCount())
-            return msg.message();
-        else if (msg.key().toUpperCase().matches(enigmaConfiguration.keyPattern())
-                && msg.message() != null && !msg.message().isEmpty()) {
+        Predicate<Message> hasValidMessage = m ->
+                m.message() != null
+                        && !m.message().isEmpty();
 
-            // Set up the initial position
-            rotor1.setup(msg.key().substring(0,1).toUpperCase());
-            rotor2.setup(msg.key().substring(1,2).toUpperCase());
-            rotor3.setup(msg.key().substring(2,3).toUpperCase());
-
-            encryptedMessage = new StringBuilder();
-
-            for (char letter: msg.message().toCharArray()) {
-                String input = String.valueOf(letter);
-
-                // will not encrypt outside [a <--> z] or [A <--> Z]
-                if (input.matches(NOT_LETTER)) {
-                    encryptedMessage.append(letter);
-                }
-                else {
-                    // to preserve the input case
-                    boolean isUpperCase = input.matches(BIG_LETTER);
-
-                    // Encoding engine
-                    String output =  enigmaConfiguration.alphabet().get(
-                            rotor1.rightEncode(
-                            rotor2.rightEncode(
-                            rotor3.rightEncode(
-                            reflector.encode(
-                            rotor3.leftEncode(
-                            rotor2.leftEncode(
-                            rotor1.leftEncode(
-                            enigmaConfiguration.alphabet()
-                                    .indexOf(input.toUpperCase())))))))));
-
-                    // set the case back after encoding
-                    if (!isUpperCase)
-                        encryptedMessage.append(output.toLowerCase());
-                    else
-                        encryptedMessage.append(output);
-                }
-            }
-            return encryptedMessage.toString();
+        // Validate the key and message, should be done externally
+        if (!hasValidKey.test(message) || !hasValidMessage.test(message)) {
+            return message.message();
         }
-        else
-            return msg.message();
+
+        // Get the initialized engine, once per message
+        IntUnaryOperator encodingEngine = initializeRotorsAndEncodingEngine(message);
+        // Function to apply the encoding
+        Function<String, String> encodeIfLetter = input -> isLetter.test(input) ? encodeLetter(input, encodingEngine) : input;
+
+        return Optional.of(message)
+                .map(msg -> msg.message().chars()
+                        .mapToObj(codePoint -> String.valueOf((char) codePoint))
+                        .map(encodeIfLetter)
+                        .collect(Collectors.joining()))
+                .orElseGet(message::message);
+    }
+
+    private String encodeLetter(String input, IntUnaryOperator encodingEngine) {
+        // Find the matching index in the alphabet after encoding,
+        // which is the core feature of the encryption
+        boolean isUpperCase = isBigLetter.test(input);
+        int inputIndex = enigmaConfiguration.alphabet().indexOf(input.toUpperCase());
+        int outputIndex = encodingEngine.applyAsInt(inputIndex);
+        String output = enigmaConfiguration.alphabet().get(outputIndex);
+        return isUpperCase ? output : output.toLowerCase();
+    }
+
+    @Nonnull
+    private IntUnaryOperator initializeRotorsAndEncodingEngine(Message message) {
+        // Set up the initial position of each rotor
+        rotor1.setup(message.key().substring(0, 1).toUpperCase());
+        rotor2.setup(message.key().substring(1, 2).toUpperCase());
+        rotor3.setup(message.key().substring(2, 3).toUpperCase());
+
+        // Encoding engine as a composed function
+        return ((IntUnaryOperator) rotor1::leftEncode)
+                .andThen(rotor2::leftEncode)
+                .andThen(rotor3::leftEncode)
+                .andThen(reflector::encode)
+                .andThen(rotor3::rightEncode)
+                .andThen(rotor2::rightEncode)
+                .andThen(rotor1::rightEncode);
     }
 }
