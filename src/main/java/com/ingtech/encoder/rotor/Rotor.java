@@ -1,25 +1,26 @@
 package com.ingtech.encoder.rotor;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class Rotor implements Prepare, CharEncode {
 
     private final int ALPHABET_SIZE = 26;
 
     private int indexOffset = 0;
-    private final String[][] data;
+    private final List<String> indexList;
+    private final List<String> referenceList;
 
-    public Rotor(String[] index, String[] reference) {
-        data = new String[2][reference.length];
-        data[0] = Arrays.copyOf(index, index.length);
-        data[1] = Arrays.copyOf(reference, reference.length);
+    public Rotor(List<String> index, List<String> reference) {
+        indexList = new ArrayList<>(index);
+        referenceList = new ArrayList<>(reference);
     }
 
     @Override
     public void setup(String key) {
-
-        for (int i = 0; i < data[0].length; i++) {
-            if (key.equals(data[0][i])) {
+        for (int i = 0; i < indexList.size(); i++) {
+            if (key.equals(indexList.get(i))) {
                 indexOffset = i;
                 break;
             }
@@ -27,9 +28,9 @@ public class Rotor implements Prepare, CharEncode {
     }
 
     public int leftEncode(int charIndex) {
-         int encodedCharIndex = charIndex;
+        int encodedCharIndex = charIndex;
         for (int i = indexOffset; i < indexOffset + ALPHABET_SIZE; i++) {
-            if (data[1][charIndex + indexOffset].equals(data[0][i])) {
+            if (referenceList.get(charIndex + indexOffset).equals(indexList.get(i))) {
                 encodedCharIndex = i - indexOffset;
                 break;
             }
@@ -41,7 +42,7 @@ public class Rotor implements Prepare, CharEncode {
     public int rightEncode(int charIndex) {
         int encodedCharIndex = charIndex;
         for (int i = indexOffset; i < indexOffset + ALPHABET_SIZE; i++) {
-            if (data[0][charIndex + indexOffset].equals(data[1][i])) {
+            if (indexList.get(charIndex + indexOffset).equals(referenceList.get(i))) {
                 encodedCharIndex = i - indexOffset;
                 break;
             }

@@ -9,10 +9,10 @@ public record EnigmaConfiguration(
         String keyPattern,
         int rotorCount,
         int alphabetSize,
-        String[] rotor1Reference,
-        String[] rotor2Reference,
-        String[] rotor3Reference,
-        String[] rotorIndex,
+        List<String> rotor1Reference,
+        List<String> rotor2Reference,
+        List<String> rotor3Reference,
+        List<String> rotorIndex,
         List<String> alphabet,
         List<String> reflectorReference
 ) {

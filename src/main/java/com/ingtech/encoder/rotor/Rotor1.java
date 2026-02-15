@@ -1,10 +1,12 @@
 package com.ingtech.encoder.rotor;
 
+import java.util.List;
+
 public class Rotor1 extends Rotor {
 
     private char spinningKey;
 
-    public Rotor1(String[] index, String[] reference) {
+    public Rotor1(List<String> index, List<String>  reference) {
         super(index, reference);
     }
 
