@@ -1,4 +1,4 @@
-package com.ingtech.encoder;
+package com.ingtech.encoder.rotor;
 
 public class Rotor1 extends Rotor {
 

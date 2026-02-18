@@ -1,39 +1,28 @@
 package com.ingtech.controller;
 
-import com.ingtech.encoder.*;
-import com.ingtech.util.EnigmaConfiguration;
-import com.ingtech.util.Message;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.ingtech.encoder.service.EnigmaEncoder;
+import com.ingtech.encoder.service.Message;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/enigma")
 public class EnigmaWebController {
-    @Autowired
-    Reflector reflector;
+    private final EnigmaEncoder enigmaEncoder;
 
-    @Autowired
-    EnigmaConfiguration enigmaConfiguration;
-
-    @Autowired
-    EnigmaEncoder enigmaEncoder;
-
+    public EnigmaWebController(EnigmaEncoder enigmaEncoder) {
+        this.enigmaEncoder = enigmaEncoder;
+    }
 
     @PostMapping("/encrypt")
-    public String encryptOrDecrypt(@ModelAttribute Message message, Model model) {
+    public String encryptOrDecrypt(@ModelAttribute Message incommingMessage, Model model) {
 
-        enigmaEncoder.setReflector(reflector);
-
-        enigmaEncoder.setRotor1(new Rotor1(enigmaConfiguration.getRotorIndex(), enigmaConfiguration.getRotor1Reference()));
-        enigmaEncoder.setRotor2(new Rotor2(enigmaConfiguration.getRotorIndex(), enigmaConfiguration.getRotor2Reference()));
-        enigmaEncoder.setRotor3(new Rotor3(enigmaConfiguration.getRotorIndex(), enigmaConfiguration.getRotor3Reference()));
-
-        var encryptedMessage = new Message("", enigmaEncoder.encode(message.getKey(), message.getMessage()));
-
+        var encryptedMessage = new Message("", enigmaEncoder.encodeMessage(incommingMessage));
         model.addAttribute("msg", encryptedMessage);
-
         return "editor";
     }
 
